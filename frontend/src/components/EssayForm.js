@@ -14,7 +14,7 @@ const EssayForm = ({
   const wordCount = essay.trim().split(/\s+/).length;
   const charCount = essay.length;
 
-  // Handle change in textarea
+  // this event handles changes in the textarea
   const handleChange = (event) => {
     const text = event.target.value;
     setEssay(text);
@@ -22,7 +22,7 @@ const EssayForm = ({
     const wordCount = text.trim().split(/\s+/).length;
     onEssayChange(text);
 
-    // Word count validation
+    // this blog is for word counvalidation
     if (wordCount < minWords) {
       setError(`Minimum word count is ${minWords}. Current: ${wordCount}`);
     } else if (wordCount > maxWords) {
@@ -32,7 +32,7 @@ const EssayForm = ({
     }
   };
 
-  // Notify parent of word count change if required
+
   useEffect(() => {
     if (onWordCountChange) {
       onWordCountChange(wordCount);

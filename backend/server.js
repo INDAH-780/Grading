@@ -25,14 +25,13 @@ app.get("/question", (req, res) => {
 });
 
 // Function to get predictions from the Gradio API
-// Function to get predictions from the Gradio API
 async function getPrediction(text) {
   try {
     const apiUrl = `${GRADIO_URL}/gradio_api/call/predict`;
 
     // Prepare the payload according to the Gradio API requirements
     const payload = {
-      data: [text], // Assuming the API expects the essay text as an array
+      data: [text],
     };
 
     // First API call (POST)
@@ -55,7 +54,7 @@ async function getPrediction(text) {
     const getResponse = await axios.get(`${apiUrl}/${event_id}`);
     console.log("GET Response from Gradio:", getResponse.data);
 
-    return getResponse.data; // Return the grading result
+    return getResponse.data; 
   } catch (error) {
     console.error("Error communicating with Gradio:", error.message);
     console.error(
@@ -70,11 +69,11 @@ async function getPrediction(text) {
 // Controller to handle essay submission and call Gradio API
 const submitEssay = async (req, res) => {
   const { essay } = req.body;
-  console.log("Received essay:", essay); // Log the received essay
+  console.log("Received essay:", essay); 
   try {
     const result = await getPrediction(essay);
-    console.log("Prediction result:", result); // Log the prediction result
-    res.json(result); // Return result to the frontend
+    console.log("Prediction result:", result); 
+    res.json(result); 
   } catch (error) {
     console.error("Error processing essay grading:", error);
     res.status(500).json({ error: "Error processing essay grading" });
@@ -85,7 +84,7 @@ const submitEssay = async (req, res) => {
 router.post("/submit", submitEssay);
 
 // Use the router in the main app
-app.use("/api", router); // Prefix all routes with /api
+app.use("/api", router); 
 
 // Start the server
 app.listen(port, () => {

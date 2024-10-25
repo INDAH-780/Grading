@@ -12,7 +12,7 @@ const ExamPage = () => {
   const [borderColor, setBorderColor] = useState("silver");
   const [boxShadowColor, setBoxShadowColor] = useState("silver");
   const [isSubmitEnabled, setIsSubmitEnabled] = useState(false);
-  const [essay, setEssay] = useState(""); // Store essay text
+  const [essay, setEssay] = useState(""); 
   const totalSecondsRef = useRef(300);
   const examRef = useRef(null);
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ const ExamPage = () => {
       const interval = setInterval(() => {
         if (totalSecondsRef.current <= 0) {
           clearInterval(interval);
-          handleSubmit(); // Submit when time is up
+          handleSubmit(); 
         } else {
           const hours = Math.floor(totalSecondsRef.current / 3600);
           const minutes = Math.floor((totalSecondsRef.current % 3600) / 60);
@@ -89,13 +89,13 @@ const ExamPage = () => {
         const { data } = await axios.post("http://localhost:5000/api/submit", {
           essay,
         });
-        console.log("API Response:", data); // Log the grading results
+        console.log("API Response:", data); 
 
-        // Navigate to Result page and pass grading results
+       
         navigate("/result", {
           state: {
             gradingResults: data,
-            question: "Your exam question here", // Replace with actual question variable if applicable
+            question: "Your exam question here", 
             userAnswer: essay,
           },
         });
@@ -121,7 +121,7 @@ const ExamPage = () => {
           minWords={100}
           maxWords={500}
           onWordCountChange={handleWordCount}
-          onEssayChange={handleEssayChange} // Pass essay change handler
+          onEssayChange={handleEssayChange} 
         />
         <button
           onClick={handleSubmit}

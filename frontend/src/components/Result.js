@@ -35,7 +35,6 @@ const Result = () => {
   // Access the first result in the gradingData array
   const firstResult = gradingData[0];
 
-  // Navigate back to the homepage
   const handleBackToHome = () => {
     navigate("/");
   };
@@ -51,7 +50,7 @@ const Result = () => {
         ))}
       </ul>
 
-      {/* Display the question and the user's answer */}
+     
       <div className="question-section">
         <h2>Question:</h2>
         <p>{question}</p>
@@ -59,7 +58,7 @@ const Result = () => {
         <p>{userAnswer}</p>
       </div>
 
-      {/* Back to Homepage Button */}
+    
       <button onClick={handleBackToHome} className="back-button">
         Back to Homepage
       </button>

@@ -4,8 +4,8 @@ import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../firebase/Firebase";
 
 const HomePage = () => {
-  const [showModal, setShowModal] = useState(false); // For exam modal
-  const [authModal, setAuthModal] = useState(false); // For authentication modal
+  const [showModal, setShowModal] = useState(false); 
+  const [authModal, setAuthModal] = useState(false); 
   const navigate = useNavigate();
 
   const handleStartExam = async (e) => {
@@ -13,10 +13,10 @@ const HomePage = () => {
     const user = auth.currentUser;
 
     if (!user) {
-      // If the user is not authenticated, show the authentication modal
+      // If the user is not authenticated, show the authentication modal to seek the users permission
       setAuthModal(true);
     } else {
-      // If the user is authenticated, show the exam details modal
+      // If the user is authenticated, show the exam details modal at once
       setShowModal(true);
     }
   };
@@ -24,22 +24,20 @@ const HomePage = () => {
   const handleAuthenticate = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider); // Perform Google sign-in
-      const authenticatedUser = result.user; // Get the authenticated user
+      const result = await signInWithPopup(auth, provider); 
+      const authenticatedUser = result.user;
       console.log("User signed in: ", authenticatedUser);
-      setAuthModal(false); // Hide the auth modal
-      setShowModal(true); // Show the exam details modal after authentication
+      setAuthModal(false); 
+      setShowModal(true); 
     } catch (error) {
       console.error("Error during authentication: ", error);
     }
   };
 
   const handleAuthCancel = () => {
-    // User declined authentication, hide auth modal and go back to homepage
     setAuthModal(false);
   };
-
-  // Continue to the exam page in full screen mode
+//fullscreen mode on exam page
   const handleContinue = async () => {
     try {
       await document.documentElement.requestFullscreen();
@@ -50,7 +48,7 @@ const HomePage = () => {
   };
 
   const handleCancel = () => {
-    setShowModal(false); // Close the exam modal
+    setShowModal(false); 
   };
 
   return (
