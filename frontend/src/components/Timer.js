@@ -27,10 +27,5 @@ const Timer = ({ timerHours, timerMinutes, timerSeconds, borderColor }) => {
   );
 };
 
-Timer.defaultProps = {
-  timerHours: 1,
-  timerMinutes: 0,
-  timerSeconds: 0,
-};
 
 export default Timer;

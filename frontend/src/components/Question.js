@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const Question = () => {
+const Question = ({ questionText, constraints }) => {
   const [question, setQuestion] = useState("");
 
   useEffect(() => {
@@ -10,7 +10,7 @@ const Question = () => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const data = await response.text(); 
+        const data = await response.text();
         setQuestion(data);
       } catch (error) {
         console.error("Error fetching question:", error);
@@ -18,13 +18,14 @@ const Question = () => {
     };
 
     fetchRandomQuestion();
-  }, []); 
+  }, []);
 
   return (
     <div className="question-field">
-    
-      {question ? <p>{question}</p> : <p>Loading question...</p>}{" "}
-      {/* The question fetched will be displayed */}
+      <div>
+        <h2>Question:{questionText}</h2>
+        <h3>Constraints:{constraints}</h3>
+      </div>
     </div>
   );
 };

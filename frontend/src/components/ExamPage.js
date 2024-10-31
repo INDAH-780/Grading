@@ -1,79 +1,106 @@
 import React, { useState, useEffect, useRef } from "react";
-import Timer from "./Timer";
+import Navbar from "./Navbar";
 import Question from "./Question";
 import EssayForm from "./EssayForm";
+import PushNotification from "./PushNotification";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Modal from "./Modal";
 
 const ExamPage = () => {
   const [timerHours, setTimerHours] = useState(0);
-  const [timerMinutes, setTimerMinutes] = useState(5);
+  const [timerMinutes, setTimerMinutes] = useState(30);
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [borderColor, setBorderColor] = useState("silver");
   const [boxShadowColor, setBoxShadowColor] = useState("silver");
   const [isSubmitEnabled, setIsSubmitEnabled] = useState(false);
-  const [essay, setEssay] = useState(""); 
-  const totalSecondsRef = useRef(300);
+  const [essay, setEssay] = useState("");
+  const [questionText, setQuestionText] = useState("");
+  const [constraints, setConstraints] = useState(""); // Define constraints state
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+
+  const totalSecondsRef = useRef(1800);
+  const intervalRef = useRef(null);
   const examRef = useRef(null);
   const navigate = useNavigate();
 
+  // Fetch question and setup timer
   useEffect(() => {
-    if (examRef.current.requestFullscreen) {
-      examRef.current.requestFullscreen();
-    }
-
-    const handleFullscreenChange = () => {
-      if (!document.fullscreenElement) {
-        handleSubmit();
+    const fetchQuestion = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/question");
+        setQuestionText(response.data.questionText);
+        setConstraints(response.data.constraints); // Set constraints here
+      } catch (error) {
+        console.error("Error fetching question:", error);
       }
     };
+    fetchQuestion();
 
-    document.onfullscreenchange = handleFullscreenChange;
+    intervalRef.current = setInterval(() => {
+      totalSecondsRef.current -= 1;
+      const hours = Math.floor(totalSecondsRef.current / 3600);
+      const minutes = Math.floor((totalSecondsRef.current % 3600) / 60);
+      const seconds = totalSecondsRef.current % 60;
 
-    const startTimer = () => {
-      const interval = setInterval(() => {
-        if (totalSecondsRef.current <= 0) {
-          clearInterval(interval);
-          handleSubmit(); 
-        } else {
-          const hours = Math.floor(totalSecondsRef.current / 3600);
-          const minutes = Math.floor((totalSecondsRef.current % 3600) / 60);
-          const seconds = totalSecondsRef.current % 60;
+      setTimerHours(hours);
+      setTimerMinutes(minutes);
+      setTimerSeconds(seconds);
 
-          setTimerHours(hours);
-          setTimerMinutes(minutes);
-          setTimerSeconds(seconds);
+      const percentageRemaining = (totalSecondsRef.current / 1800) * 100;
+      setBorderColor(
+        percentageRemaining <= 10
+          ? "red"
+          : percentageRemaining <= 50
+          ? "orange"
+          : "silver"
+      );
+      setBoxShadowColor(
+        percentageRemaining <= 10
+          ? "red"
+          : percentageRemaining <= 50
+          ? "orange"
+          : "silver"
+      );
 
-          const percentageRemaining = (totalSecondsRef.current / 300) * 100;
-          if (percentageRemaining <= 5) {
-            setBorderColor("red");
-            setBoxShadowColor("red");
-          } else if (percentageRemaining <= 10) {
-            setBorderColor("red");
-            setBoxShadowColor("red");
-          } else if (percentageRemaining <= 50) {
-            setBorderColor("orange");
-            setBoxShadowColor("orange");
-          } else {
-            setBorderColor("silver");
-            setBoxShadowColor("silver");
-          }
+      if (totalSecondsRef.current <= 0) {
+        clearInterval(intervalRef.current);
+        handleSubmit();
+      }
+    }, 1000);
 
-          totalSecondsRef.current -= 1;
-        }
-      }, 1000);
-
-      return () => {
-        clearInterval(interval);
-      };
+    // Handle fullscreen changes
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        handleStopExam(); // Show modal if exiting fullscreen
+      }
     };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
 
-    startTimer();
+    // Listen for tab swaps
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        handleStopExam(); // Show modal if tab is not active
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      document.onfullscreenchange = null;
+      clearInterval(intervalRef.current);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [borderColor, boxShadowColor, navigate]);
+  }, []);
+
+  const handleStopExam = () => {
+    clearInterval(intervalRef.current);
+    setModalMessage("You have stopped the exam. Your work will not be graded.");
+    setIsModalVisible(true);
+    setTimeout(() => {
+      navigate("/"); // Redirect after 5 seconds
+    }, 5000);
+  };
 
   const handleWordCount = (wordCount) => {
     setIsSubmitEnabled(wordCount >= 100 && wordCount <= 500);
@@ -84,59 +111,81 @@ const ExamPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (isSubmitEnabled || totalSecondsRef.current <= 0) {
-      try {
-        const { data } = await axios.post("http://localhost:5000/api/submit", {
-          essay,
-        });
-        console.log("API Response:", data); 
+    const submissionData = { essay: essay.trim() === "" ? "N/A" : essay };
 
-       
-        navigate("/result", {
-          state: {
-            gradingResults: data,
-            question: "Your exam question here", 
-            userAnswer: essay,
-          },
-        });
-
-      } catch (error) {
-        console.error("Error submitting essay:", error);
-      }
+    try {
+      const { data } = await axios.post(
+        "http://localhost:5000/api/submit",
+        submissionData
+      );
+      navigate("/result", {
+        state: {
+          gradingResults: data,
+          question: questionText,
+          userAnswer: submissionData.essay,
+        },
+      });
+    } catch (error) {
+      console.error("Error submitting essay:", error);
     }
   };
 
+  const handleStartFullscreen = () => {
+    if (examRef.current.requestFullscreen) {
+      examRef.current.requestFullscreen();
+    } else if (examRef.current.mozRequestFullScreen) {
+      // Firefox
+      examRef.current.mozRequestFullScreen();
+    } else if (examRef.current.webkitRequestFullscreen) {
+      // Chrome, Safari and Opera
+      examRef.current.webkitRequestFullscreen();
+    } else if (examRef.current.msRequestFullscreen) {
+      // IE/Edge
+      examRef.current.msRequestFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    handleStartFullscreen(); // Start in fullscreen mode
+  }, []);
+
   return (
-    <div className="exam-page">
-      <div ref={examRef}>
-        <Timer
-          timerHours={timerHours}
-          timerMinutes={timerMinutes}
-          timerSeconds={timerSeconds}
-          borderColor={borderColor}
-          boxShadowColor={boxShadowColor}
-        />
-        <Question />
-        <EssayForm
-          minWords={100}
-          maxWords={500}
-          onWordCountChange={handleWordCount}
-          onEssayChange={handleEssayChange} 
-        />
+    <div
+      className="d-flex flex-column vh-100"
+      ref={examRef}
+      style={{ borderColor, boxShadow: `0 0 10px ${boxShadowColor}` }}
+    >
+      <Navbar
+        timerHours={timerHours}
+        timerMinutes={timerMinutes}
+        timerSeconds={timerSeconds}
+        borderColor={borderColor}
+        onStop={handleStopExam} // Pass handleStopExam to Navbar
+      />
+      <div className="flex-grow-1 d-flex flex-column justify-content-center align-items-center p-4">
+        <div className="w-100 mt-4">
+          <Question questionText={questionText} constraints={constraints} />
+        </div>
+        <div className="w-100 mt-4">
+          <EssayForm
+            onWordCountChange={handleWordCount}
+            onEssayChange={handleEssayChange}
+          />
+        </div>
         <button
+          className="btn btn-primary mt-3"
           onClick={handleSubmit}
           disabled={!isSubmitEnabled}
-          style={{
-            backgroundColor: isSubmitEnabled ? "blue" : "grey",
-            color: "white",
-            padding: "10px 20px",
-            border: "none",
-            cursor: isSubmitEnabled ? "pointer" : "not-allowed",
-          }}
         >
-          Submit
+          Submit Essay
         </button>
       </div>
+      {isModalVisible && (
+        <Modal
+          message={modalMessage}
+          onClose={() => setIsModalVisible(false)}
+        />
+      )}
     </div>
   );
 };

@@ -11,3 +11,26 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+//modals
+.wrapper {
+  margin: 20px;
+}
+
+.modal {
+  top: 20%; /* Center the modal vertically */
+}
+
+.modal-header {
+  background-color: #f8f9fa; /* Light header background */
+}
+
+.modal-title {
+  color: #343a40; /* Darker title color */
+}
+
+.close {
+  color: #343a40; /* Darker close button */
+  cursor: pointer;
+}

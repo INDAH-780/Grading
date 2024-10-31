@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "questionText": "The rise of social media has impacted the way people communicate. To what extent do you agree or disagree?",
+    "constraints": {
+      "minWords": 100,
+      "maxWords": 300,
+      "minChars": 500,
+      "maxChars": 2000,
+      "minTime": 30,
+      "maxTime": 60
+    }
+  },
+  {
+    "id": 2,
+    "questionText": "Some believe that the increasing reliance on technology has led to a decrease in face-to-face communication. Discuss both sides and give your opinion.",
+    "constraints": {
+      "minWords": 150,
+      "maxWords": 500,
+      "minChars": 600,
+      "maxChars": 2500,
+      "minTime": 45,
+      "maxTime": 90
+    }
+  },
+  {
+    "id": 3,
+    "questionText": "In some countries, a high percentage of students drop out of school. What are the reasons for this, and what can be done to prevent it?",
+    "constraints": {
+      "minWords": 150,
+      "maxWords": 500,
+      "minChars": 600,
+      "maxChars": 2500,
+      "minTime": 45,
+      "maxTime": 90
+    }
+  },
+  {
+    "id": 4,
+    "questionText": "Some people believe that children should be taught to be competitive in school, while others think they should be taught to cooperate. Discuss both views and give your opinion.",
+    "constraints": {
+      "minWords": 150,
+      "maxWords": 500,
+      "minChars": 600,
+      "maxChars": 2500,
+      "minTime": 45,
+      "maxTime": 90
+    }
+  }
+]

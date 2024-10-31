@@ -1,5 +1,7 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth"; // Import signOut from firebase/auth
+import { auth } from "../firebase/Firebase"; // Import your Firebase auth instance
 
 const Result = () => {
   const location = useLocation();
@@ -39,6 +41,15 @@ const Result = () => {
     navigate("/");
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth); // Sign out the user from Firebase
+      navigate("/"); // Navigate back to the homepage
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
+  };
+
   return (
     <div className="result-container">
       <h1>Grading Results:</h1>
@@ -50,18 +61,22 @@ const Result = () => {
         ))}
       </ul>
 
-     
       <div className="question-section">
         <h2>Question:</h2>
         <p>{question}</p>
         <h2>Your Answer:</h2>
         <p>{userAnswer}</p>
       </div>
+      <div className="button-container">
+        <button onClick={handleBackToHome} className="back-button">
+          Back to Homepage
+        </button>
 
-    
-      <button onClick={handleBackToHome} className="back-button">
-        Back to Homepage
-      </button>
+        {/* Sign Out Button */}
+        <button onClick={handleSignOut} className="sign-out-button">
+          Sign Out
+        </button>
+      </div>
     </div>
   );
 };

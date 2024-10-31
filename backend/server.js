@@ -1,6 +1,8 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
+const fs = require("fs").promises;
+const path = require("path");
 
 const app = express();
 const port = 5000;
@@ -9,41 +11,59 @@ const router = express.Router();
 app.use(cors());
 app.use(express.json());
 
-const GRADIO_URL = "https://7747a0194768d783da.gradio.live";
-const questions = [
-  "The rise of social media has impacted the way people communicate. To what extent do you agree or disagree?",
-  "Some believe that the increasing reliance on technology has led to a decrease in face-to-face communication. Discuss both sides and give your opinion.",
-  "Some people believe that children should be taught to be competitive in school, while others think they should be taught to cooperate. Discuss both views and give your opinion.",
-  "In some countries, a high percentage of students drop out of school. What are the reasons for this, and what can be done to prevent it?",
-];
+const GRADIO_URL = "https://42dd9f21c6d7d7dafd.gradio.live";
+
+// Load questions from the JSON file
+const loadQuestions = async () => {
+  try {
+    const data = await fs.readFile(
+      path.join(__dirname, "question.json"),
+      "utf8"
+    );
+    return JSON.parse(data);
+  } catch (error) {
+    console.error("Error loading questions:", error);
+    return []; // Return an empty array if there’s an error
+  }
+};
+
 
 // Random question route
-app.get("/question", (req, res) => {
+app.get("/question", async (req, res) => {
+  const questions = await loadQuestions();
+  if (questions.length === 0) {
+    return res.status(500).send("No questions available");
+  }
+
   const chosenQuestionIndex = Math.floor(Math.random() * questions.length);
   const chosenQuestion = questions[chosenQuestionIndex];
-  res.send(chosenQuestion);
+  
+  // Format constraints as a readable string
+  const constraints = `Word limit: ${chosenQuestion.constraints.minWords}-${chosenQuestion.constraints.maxWords}, ` +
+                      `Character limit: ${chosenQuestion.constraints.minChars}-${chosenQuestion.constraints.maxChars}, ` +
+                      `Sitting time: ${chosenQuestion.constraints.minTime}-${chosenQuestion.constraints.maxTime} minutes`;
+
+  const formattedResponse = {
+    questionText: chosenQuestion.questionText,
+    constraints
+  };
+
+  res.json(formattedResponse);
 });
+
 
 // Function to get predictions from the Gradio API
 async function getPrediction(text) {
   try {
     const apiUrl = `${GRADIO_URL}/gradio_api/call/predict`;
-
-    // Prepare the payload according to the Gradio API requirements
-    const payload = {
-      data: [text],
-    };
+    const payload = { data: [text] };
 
     // First API call (POST)
     const postResponse = await axios.post(apiUrl, payload, {
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
-
     console.log("POST Response from Gradio:", postResponse.data);
 
-    // Check for event_id in the response
     if (!postResponse.data || !postResponse.data.event_id) {
       throw new Error("POST response from Gradio did not contain event_id");
     }
@@ -54,26 +74,21 @@ async function getPrediction(text) {
     const getResponse = await axios.get(`${apiUrl}/${event_id}`);
     console.log("GET Response from Gradio:", getResponse.data);
 
-    return getResponse.data; 
+    return getResponse.data;
   } catch (error) {
     console.error("Error communicating with Gradio:", error.message);
-    console.error(
-      "Full error details:",
-      error.response ? error.response.data : error
-    );
     throw new Error("Error communicating with Gradio: " + error.message);
   }
 }
 
-
 // Controller to handle essay submission and call Gradio API
 const submitEssay = async (req, res) => {
   const { essay } = req.body;
-  console.log("Received essay:", essay); 
+  console.log("Received essay:", essay);
   try {
     const result = await getPrediction(essay);
-    console.log("Prediction result:", result); 
-    res.json(result); 
+    console.log("Prediction result:", result);
+    res.json(result);
   } catch (error) {
     console.error("Error processing essay grading:", error);
     res.status(500).json({ error: "Error processing essay grading" });
@@ -84,7 +99,7 @@ const submitEssay = async (req, res) => {
 router.post("/submit", submitEssay);
 
 // Use the router in the main app
-app.use("/api", router); 
+app.use("/api", router);
 
 // Start the server
 app.listen(port, () => {

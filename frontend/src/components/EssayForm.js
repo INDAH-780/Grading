@@ -8,21 +8,18 @@ const EssayForm = ({
 }) => {
   const [essay, setEssay] = useState("");
   const [error, setError] = useState("");
-  //const [essayText, setEssayText] = useState("");
 
-  // Calculate word and character count once
+  // Calculate word and character count
   const wordCount = essay.trim().split(/\s+/).length;
   const charCount = essay.length;
 
-  // this event handles changes in the textarea
+  // Handle changes in the textarea
   const handleChange = (event) => {
     const text = event.target.value;
     setEssay(text);
-
-    const wordCount = text.trim().split(/\s+/).length;
     onEssayChange(text);
 
-    // this blog is for word counvalidation
+    // Word count validation
     if (wordCount < minWords) {
       setError(`Minimum word count is ${minWords}. Current: ${wordCount}`);
     } else if (wordCount > maxWords) {
@@ -32,7 +29,6 @@ const EssayForm = ({
     }
   };
 
-
   useEffect(() => {
     if (onWordCountChange) {
       onWordCountChange(wordCount);
@@ -40,24 +36,18 @@ const EssayForm = ({
   }, [wordCount, onWordCountChange]);
 
   return (
-    <div className="essay-form">
+    <div className="essay-form mb-4">
       <textarea
         value={essay}
         onChange={handleChange}
+        className="form-control essay"
         rows="10"
-        cols="50"
         placeholder="Type your essay here..."
-        style={{
-          width: "100%",
-          padding: "10px",
-          borderColor: error ? "red" : "black",
-          borderRadius: "5px",
-        }}
       />
-      <div>
-        <p>Word Count: {wordCount}</p>
-        <p>Character Count: {charCount}</p>
-        {error && <p style={{ color: "red" }}>{error}</p>}
+      <div className="info-container mt-3">
+        <p className="info-item">Word Count: {wordCount}</p>
+        <p className="info-item">Character Count: {charCount}</p>
+        {error && <p className="text-danger">{error}</p>}
       </div>
     </div>
   );
