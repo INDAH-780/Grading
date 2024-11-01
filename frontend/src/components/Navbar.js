@@ -10,12 +10,28 @@ const Navbar = ({
   onStop,
 }) => {
   return (
-    <nav className="navbar d-flex justify-content-between align-items-center">
-      <h1 className="navbar-title">Essay Grading Exam</h1>
-      <button className="btn btn-danger ms-3" onClick={onStop}>
+    <nav
+      className="navbar d-flex justify-content-between align-items-center"
+      style={{
+        width: "100%",
+        backgroundColor: "#7963a8",
+        color: "#fff",
+      }}
+    >
+      <h1 className="navbar-title">Exam Portal</h1>
+      <button
+        className="btn btn-primary ms-0"
+        onClick={onStop}
+        style={{
+          backgroundColor: "#242034",
+          color: "#fff",
+          border: "none",
+          marginRight: "2px",
+        }}
+      >
         Stop
       </button>
-      <div className="d-flex align-items-center">
+      <div >
         <Timer
           timerHours={timerHours}
           timerMinutes={timerMinutes}

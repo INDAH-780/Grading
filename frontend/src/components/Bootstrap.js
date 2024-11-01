@@ -18,3 +18,23 @@ function Bootstrap() {
 }
 
 export default Bootstrap;
+
+ const handleSubmit = async () => {
+   const submissionData = { essay: essay.trim() === "" ? "N/A" : essay };
+
+   try {
+     const { data } = await axios.post(
+       "http://localhost:5000/api/submit",
+       submissionData
+     );
+     navigate("/result", {
+       state: {
+         gradingResults: data,
+         question: questionText,
+         userAnswer: submissionData.essay,
+       },
+     });
+   } catch (error) {
+     console.error("Error submitting essay:", error);
+   }
+ };

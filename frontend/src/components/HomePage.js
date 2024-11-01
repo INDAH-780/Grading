@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../firebase/Firebase";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./HomePage.css"; // Import external styles
+import examImage from "../images/exam.png";
+import logoImage from "../images/logoh.png"
+
 
 const HomePage = () => {
   const [showModal, setShowModal] = useState(false);
@@ -53,37 +55,58 @@ const HomePage = () => {
   return (
     <div className="wrapper">
       <header className="header d-flex justify-content-between align-items-center">
-        {/* Logo */}
         <div className="logo">
-          <img src="path_to_logo.png" alt="Logo" width="50" height="50" />
+          <img src={logoImage} alt="Logo" width="50" height="50" />
         </div>
 
-        {/* Start Button */}
-        <button onClick={handleStartExam} className="btn btn-primary">
+        <button
+          onClick={handleStartExam}
+          className="btn btn-primary"
+          style={{
+            backgroundColor: "#578d13",
+            color: "#fff",
+            border: "none",
+          }}
+        >
           Start Exam
         </button>
       </header>
 
-      <div className="container container-content mt-4">
-        <div className="row align-items-center" style={{ height: "80vh" }}>
-          {/* Left Section (Text) */}
+      <div
+        className="container container-content"
+        style={{
+          width: "100%",
+          marginTop: "12rem",
+          padding: "0 15px",
+        }}
+      >
+        <div className="row align-items-center">
           <div className="col-md-6 text-center">
             <h1>Welcome to the Essay Grading System App!</h1>
             <p>
               Take the Essay Grading Test and receive your results immediately
               after submission.
             </p>
-            <button onClick={handleStartExam} className="btn btn-primary">
+            <button
+              onClick={handleStartExam}
+              className="btn btn-primary"
+              style={{
+                backgroundColor: "#578d13",
+                color: "#fff",
+                border: "none",
+              }}
+            >
               Start Exam
             </button>
           </div>
 
-          {/* Right Section (Image) */}
           <div className="col-md-6 text-center">
             <img
-              src="path_to_your_image.jpg"
+              src={examImage}
               alt="Exam Illustration"
               className="img-fluid"
+              width="200"
+              height="200"
             />
           </div>
         </div>
@@ -124,7 +147,6 @@ const HomePage = () => {
         </div>
       )}
 
-      {/* Exam Modal */}
       {showModal && (
         <div
           className={`modal fade show`}

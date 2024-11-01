@@ -23,8 +23,9 @@ const Question = ({ questionText, constraints }) => {
   return (
     <div className="question-field">
       <div>
-        <h2>Question:{questionText}</h2>
-        <h3>Constraints:{constraints}</h3>
+        <p>{questionText}</p>
+        <p>Constraints</p>
+        <p>{constraints}</p>
       </div>
     </div>
   );

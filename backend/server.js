@@ -13,7 +13,7 @@ app.use(express.json());
 
 const GRADIO_URL = "https://42dd9f21c6d7d7dafd.gradio.live";
 
-// Load questions from the JSON file
+
 const loadQuestions = async () => {
   try {
     const data = await fs.readFile(
@@ -23,12 +23,10 @@ const loadQuestions = async () => {
     return JSON.parse(data);
   } catch (error) {
     console.error("Error loading questions:", error);
-    return []; // Return an empty array if there’s an error
+    return []; 
   }
 };
 
-
-// Random question route
 app.get("/question", async (req, res) => {
   const questions = await loadQuestions();
   if (questions.length === 0) {
@@ -38,7 +36,7 @@ app.get("/question", async (req, res) => {
   const chosenQuestionIndex = Math.floor(Math.random() * questions.length);
   const chosenQuestion = questions[chosenQuestionIndex];
   
-  // Format constraints as a readable string
+  // Format constraints as a readable string, using interpolators
   const constraints = `Word limit: ${chosenQuestion.constraints.minWords}-${chosenQuestion.constraints.maxWords}, ` +
                       `Character limit: ${chosenQuestion.constraints.minChars}-${chosenQuestion.constraints.maxChars}, ` +
                       `Sitting time: ${chosenQuestion.constraints.minTime}-${chosenQuestion.constraints.maxTime} minutes`;
