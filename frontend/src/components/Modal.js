@@ -1,6 +1,13 @@
 import React from "react";
 
-const Modal = ({ message, onContinue, onStopExam, continueText, stopText }) => {
+const Modal = ({
+  message,
+  onContinue,
+  onStopExam,
+  continueText,
+  stopText,
+  children,
+}) => {
   return (
     <div className="modal" style={{ display: "block" }}>
       {" "}
@@ -12,6 +19,7 @@ const Modal = ({ message, onContinue, onStopExam, continueText, stopText }) => {
           </div>
           <div className="modal-body">
             <p>{message}</p>
+            {children}
           </div>
           <div className="modal-footer">
             <button className="btn btn-secondary" onClick={onContinue}>

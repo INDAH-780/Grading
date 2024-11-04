@@ -24,8 +24,19 @@ const Question = ({ questionText, constraints }) => {
     <div className="question-field">
       <div>
         <p>{questionText}</p>
-        <p>Constraints</p>
-        <p>{constraints}</p>
+        <p>Constraints:</p>
+        {/* Render constraints as key-value pairs because its an object */}
+        {constraints && typeof constraints === "object" ? (
+          <ul>
+            {Object.entries(constraints).map(([key, value]) => (
+              <li key={key}>
+                {key}: {value}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>{constraints}</p> // but if its not an object this will be rendered
+        )}
       </div>
     </div>
   );

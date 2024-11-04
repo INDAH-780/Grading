@@ -44,8 +44,8 @@ const HomePage = () => {
   };
 
   const handleContinue = (e) => {
-    e.preventDefault(); // Prevent default behavior
-    navigate("/exam"); // Directly navigate to the ExamPage
+    e.preventDefault(); 
+    navigate("/exam"); 
   };
 
   const handleCancel = () => {
@@ -56,7 +56,13 @@ const HomePage = () => {
     <div className="wrapper">
       <header className="header d-flex justify-content-between align-items-center">
         <div className="logo">
-          <img src={logoImage} alt="Logo" width="50" height="50" />
+          <img
+            src={logoImage}
+            alt="Logo"
+            width="80"
+            height="80"
+            style={{ borderRadius: "50%" }}
+          />
         </div>
 
         <button

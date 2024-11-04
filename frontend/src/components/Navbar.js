@@ -16,6 +16,7 @@ const Navbar = ({
         width: "100%",
         backgroundColor: "#7963a8",
         color: "#fff",
+        position: "fixed",
       }}
     >
       <h1 className="navbar-title">Exam Portal</h1>

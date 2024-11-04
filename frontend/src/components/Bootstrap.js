@@ -38,3 +38,16 @@ export default Bootstrap;
      console.error("Error submitting essay:", error);
    }
  };
+
+
+ {
+   isModalVisible && (
+     <Modal
+       message={modalMessage}
+       onContinue={handleModalContinue}
+       onStopExam={handleModalStopExam}
+       continueText="Continue"
+       stopText="Stop Exam"
+     />
+   );
+ }

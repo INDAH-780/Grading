@@ -15,16 +15,16 @@ const ExamPage = () => {
   const [isSubmitEnabled, setIsSubmitEnabled] = useState(false);
   const [essay, setEssay] = useState("");
   const [questionText, setQuestionText] = useState("");
-  const [constraints, setConstraints] = useState("");
+  const [constraints, setConstraints] = useState({});
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [constraintChecks, setConstraintChecks] = useState({});
 
   const totalSecondsRef = useRef(1800);
   const intervalRef = useRef(null);
   const examRef = useRef(null);
   const navigate = useNavigate();
 
-  // New states for word and character count
   const [wordCount, setWordCount] = useState(0);
   const [characterCount, setCharacterCount] = useState(0);
 
@@ -34,11 +34,23 @@ const ExamPage = () => {
         const response = await axios.get("http://localhost:5000/question");
         setQuestionText(response.data.questionText);
         setConstraints(response.data.constraints);
+        console.log("Fetched Constraints:", response.data.constraints);
       } catch (error) {
         console.error("Error fetching question:", error);
       }
     };
     fetchQuestion();
+
+    // Request fullscreen on page load
+    if (examRef.current.requestFullscreen) {
+      examRef.current.requestFullscreen();
+    } else if (examRef.current.webkitRequestFullscreen) {
+      examRef.current.webkitRequestFullscreen(); // Safari support
+    } else if (examRef.current.mozRequestFullScreen) {
+      examRef.current.mozRequestFullScreen(); // Firefox support
+    } else if (examRef.current.msRequestFullscreen) {
+      examRef.current.msRequestFullscreen(); // IE/Edge support
+    }
 
     intervalRef.current = setInterval(() => {
       totalSecondsRef.current -= 1;
@@ -74,11 +86,10 @@ const ExamPage = () => {
 
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) {
-        handleStopExam();
+         navigate("/");
       }
     };
 
-    // Key down event to capture Alt key usage
     const handleKeyDown = (event) => {
       if (event.altKey) {
         setModalMessage(
@@ -89,7 +100,6 @@ const ExamPage = () => {
       }
     };
 
-    // Event listeners
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     window.addEventListener("keydown", handleKeyDown);
 
@@ -108,49 +118,106 @@ const ExamPage = () => {
   };
 
   const handleWordCount = (wordCount) => {
-    setIsSubmitEnabled(wordCount >= 100 && wordCount <= 500);
+    setIsSubmitEnabled(
+      wordCount >= (constraints.minWords || 0) &&
+        wordCount <= (constraints.maxWords || Infinity)
+    );
   };
 
-  // Updated handleEssayChange function
   const handleEssayChange = (text) => {
     setEssay(text);
-    // Update word and character counts
     const words = text
       .trim()
       .split(/\s+/)
       .filter((word) => word.length > 0);
     setWordCount(words.length);
     setCharacterCount(text.length);
-    handleWordCount(words.length); // Check if the essay meets the word count requirements
+    handleWordCount(words.length);
   };
+
+ 
+
+const checkConstraints = () => {
+  console.log("Constraints Object:", constraints);
+
+  const minWords = constraints.minWords ?? 1;
+  const maxWords = constraints.maxWords ?? Infinity;
+  const minChars = constraints.minChars ?? 1;
+  const maxChars = constraints.maxChars ?? Infinity;
+  const minTimeInSeconds = (constraints.minTime ?? 0) * 60;
+  const maxTimeInSeconds = (constraints.maxTime ?? Infinity) * 60;
+
+  const wordCountCheck = wordCount >= minWords && wordCount <= maxWords;
+  const characterCountCheck =
+    characterCount >= minChars && characterCount <= maxChars;
+  const minTimeCheck = totalSecondsRef.current <= minTimeInSeconds;
+  const maxTimeCheck = totalSecondsRef.current >= maxTimeInSeconds;
+
+  const checks = {
+    wordCount: wordCountCheck,
+    characterCount: characterCountCheck,
+    minTime: minTimeCheck,
+    maxTime: maxTimeCheck,
+  };
+
+  console.log(
+    "Word Count:",
+    wordCount,
+    "Required:",
+    minWords,
+    "-",
+    maxWords,
+    "Result:",
+    wordCountCheck
+  );
+  console.log(
+    "Character Count:",
+    characterCount,
+    "Required:",
+    minChars,
+    "-",
+    maxChars,
+    "Result:",
+    characterCountCheck
+  );
+
+  setConstraintChecks(checks);
+  return Object.values(checks).every(Boolean);
+};
+
+  const renderConstraintStatus = () => {
+    return Object.entries(constraintChecks).map(([key, isMet]) => (
+      <li key={key}>{`${key.replace(/([A-Z])/g, " $1")}: ${
+        isMet ? "✓" : "✗"
+      }`}</li>
+    ));
+  };
+
 
   const handleSubmit = async () => {
-    const submissionData = { essay: essay.trim() === "" ? "N/A" : essay };
+  if (!checkConstraints()) {
+    setModalMessage("Please meet all constraints to submit the essay.");
+    setIsModalVisible(true);
+    return;
+  }
 
-    try {
-      const { data } = await axios.post(
-        "http://localhost:5000/api/submit",
-        submissionData
-      );
-      navigate("/result", {
-        state: {
-          gradingResults: data,
-          question: questionText,
-          userAnswer: submissionData.essay,
-        },
-      });
-    } catch (error) {
-      console.error("Error submitting essay:", error);
-    }
-  };
-
-  const handleModalStopExam = () => {
-    navigate("/"); // Navigate to the main page when stopping the exam
-  };
-
-  const handleModalContinue = () => {
-    setIsModalVisible(false); // Close the modal and continue the exam
-  };
+  try {
+    const { data } = await axios.post("http://localhost:5000/api/submit", {
+      essay,
+    });
+    navigate("/result", {
+      state: {
+        gradingResults: data,
+        question: questionText,
+        userAnswer: essay,
+      },
+    });
+  } catch (error) {
+    console.error("Error submitting essay:", error);
+  }
+};
+  const handleModalStopExam = () => navigate("/");
+  const handleModalContinue = () => setIsModalVisible(false);
 
   return (
     <div
@@ -182,7 +249,6 @@ const ExamPage = () => {
           </button>
         </div>
       </div>
-      {/* Conditional rendering of Modal */}
       {isModalVisible && (
         <Modal
           message={modalMessage}
@@ -190,7 +256,9 @@ const ExamPage = () => {
           onStopExam={handleModalStopExam}
           continueText="Continue"
           stopText="Stop Exam"
-        />
+        >
+          <ul>{renderConstraintStatus()}</ul>
+        </Modal>
       )}
     </div>
   );

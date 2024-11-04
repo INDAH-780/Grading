@@ -11,7 +11,7 @@ const router = express.Router();
 app.use(cors());
 app.use(express.json());
 
-const GRADIO_URL = "https://42dd9f21c6d7d7dafd.gradio.live";
+const GRADIO_URL = "https://3a1fe7fd4b2d2c1d3a.gradio.live";
 
 
 const loadQuestions = async () => {
