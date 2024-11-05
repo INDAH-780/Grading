@@ -7,23 +7,23 @@ import { useNavigate } from "react-router-dom";
 import Modal from "./Modal";
 
 const ExamPage = () => {
-  const [timerHours, setTimerHours] = useState(0);
-  const [timerMinutes, setTimerMinutes] = useState(30);
-  const [timerSeconds, setTimerSeconds] = useState(0);
-  const [borderColor, setBorderColor] = useState("silver");
-  const [boxShadowColor, setBoxShadowColor] = useState("silver");
-  const [isSubmitEnabled, setIsSubmitEnabled] = useState(false);
-  const [essay, setEssay] = useState("");
-  const [questionText, setQuestionText] = useState("");
-  const [constraints, setConstraints] = useState({});
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
-  const [constraintChecks, setConstraintChecks] = useState({});
-
-  const totalSecondsRef = useRef(1800);
-  const intervalRef = useRef(null);
-  const examRef = useRef(null);
-  const navigate = useNavigate();
+ const [timerHours, setTimerHours] = useState(0);
+ const [timerMinutes, setTimerMinutes] = useState(30);
+ const [timerSeconds, setTimerSeconds] = useState(0);
+ const [borderColor, setBorderColor] = useState("silver");
+ const [boxShadowColor, setBoxShadowColor] = useState("silver");
+ const [isSubmitEnabled, setIsSubmitEnabled] = useState(false);
+ const [essay, setEssay] = useState("");
+ const [questionText, setQuestionText] = useState("");
+ const [constraints, setConstraints] = useState({});
+ const [maxTimeInSeconds, setMaxTimeInSeconds] = useState(0); // New state for maxTime
+ const [isModalVisible, setIsModalVisible] = useState(false);
+ const [modalMessage, setModalMessage] = useState("");
+ const [constraintChecks, setConstraintChecks] = useState({});
+ const totalSecondsRef = useRef(0);
+ const intervalRef = useRef(null);
+ const examRef = useRef(null);
+ const navigate = useNavigate();
 
   const [wordCount, setWordCount] = useState(0);
   const [characterCount, setCharacterCount] = useState(0);
@@ -36,6 +36,20 @@ const ExamPage = () => {
         setQuestionText(response.data.questionText);
           const parsedConstraints = parseConstraints(response.data.constraints);
           setConstraints(parsedConstraints);
+
+          // Set timer based on maxTime in constraints
+        const maxTimeInSec = (parsedConstraints.maxTime || 60) * 60;
+        setMaxTimeInSeconds(maxTimeInSec); // Set max time in state
+        totalSecondsRef.current = maxTimeInSec;
+
+        const hours = Math.floor(maxTimeInSec / 3600);
+        const minutes = Math.floor((maxTimeInSec % 3600) / 60);
+        const seconds = maxTimeInSec % 60;
+
+        setTimerHours(hours);
+        setTimerMinutes(minutes);
+        setTimerSeconds(seconds);
+
 
         console.log("Fetched Constraints:", response.data.constraints);
       } catch (error) {
@@ -55,8 +69,16 @@ const ExamPage = () => {
       examRef.current.msRequestFullscreen(); // IE/Edge support
     }
 
+    // Initialize the timer interval
     intervalRef.current = setInterval(() => {
+      if (totalSecondsRef.current <= 0) {
+        clearInterval(intervalRef.current);
+        handleSubmit(); // Auto-submit if time runs out
+        return;
+      }
+
       totalSecondsRef.current -= 1;
+
       const hours = Math.floor(totalSecondsRef.current / 3600);
       const minutes = Math.floor((totalSecondsRef.current % 3600) / 60);
       const seconds = totalSecondsRef.current % 60;
@@ -65,7 +87,8 @@ const ExamPage = () => {
       setTimerMinutes(minutes);
       setTimerSeconds(seconds);
 
-      const percentageRemaining = (totalSecondsRef.current / 1800) * 100;
+      const percentageRemaining =
+        (totalSecondsRef.current / maxTimeInSeconds) * 100;
       setBorderColor(
         percentageRemaining <= 10
           ? "red"
@@ -80,12 +103,39 @@ const ExamPage = () => {
           ? "orange"
           : "silver"
       );
-
-      if (totalSecondsRef.current <= 0) {
-        clearInterval(intervalRef.current);
-        handleSubmit();
-      }
     }, 1000);
+
+    // intervalRef.current = setInterval(() => {
+    //   totalSecondsRef.current -= 1;
+    //   const hours = Math.floor(totalSecondsRef.current / 3600);
+    //   const minutes = Math.floor((totalSecondsRef.current % 3600) / 60);
+    //   const seconds = totalSecondsRef.current % 60;
+
+    //   setTimerHours(hours);
+    //   setTimerMinutes(minutes);
+    //   setTimerSeconds(seconds);
+
+    //   const percentageRemaining = (totalSecondsRef.current / 1800) * 100;
+    //   setBorderColor(
+    //     percentageRemaining <= 10
+    //       ? "red"
+    //       : percentageRemaining <= 50
+    //       ? "orange"
+    //       : "silver"
+    //   );
+    //   setBoxShadowColor(
+    //     percentageRemaining <= 10
+    //       ? "red"
+    //       : percentageRemaining <= 50
+    //       ? "orange"
+    //       : "silver"
+    //   );
+
+    //   if (totalSecondsRef.current <= 0) {
+    //     clearInterval(intervalRef.current);
+    //     handleSubmit();
+    //   }
+    // }, 1000);
 
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) {
