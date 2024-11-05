@@ -32,8 +32,11 @@ const ExamPage = () => {
     const fetchQuestion = async () => {
       try {
         const response = await axios.get("http://localhost:5000/question");
+        console.log("Fetched Response:", response.data); // Log the full response
         setQuestionText(response.data.questionText);
-        setConstraints(response.data.constraints);
+          const parsedConstraints = parseConstraints(response.data.constraints);
+          setConstraints(parsedConstraints);
+
         console.log("Fetched Constraints:", response.data.constraints);
       } catch (error) {
         console.error("Error fetching question:", error);
@@ -86,7 +89,7 @@ const ExamPage = () => {
 
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) {
-         navigate("/");
+        navigate("/");
       }
     };
 
@@ -124,6 +127,30 @@ const ExamPage = () => {
     );
   };
 
+  // Helper function to parse constraints from the string format
+  const parseConstraints = (constraintsString) => {
+    const constraints = {};
+
+    const wordMatch = constraintsString.match(/Word limit: (\d+)-(\d+)/);
+    const charMatch = constraintsString.match(/Character limit: (\d+)-(\d+)/);
+    const timeMatch = constraintsString.match(/Sitting time: (\d+)-(\d+)/);
+
+    if (wordMatch) {
+      constraints.minWords = parseInt(wordMatch[1], 10);
+      constraints.maxWords = parseInt(wordMatch[2], 10);
+    }
+    if (charMatch) {
+      constraints.minChars = parseInt(charMatch[1], 10);
+      constraints.maxChars = parseInt(charMatch[2], 10);
+    }
+    if (timeMatch) {
+      constraints.minTime = parseInt(timeMatch[1], 10);
+      constraints.maxTime = parseInt(timeMatch[2], 10);
+    }
+
+    return constraints;
+  };
+
   const handleEssayChange = (text) => {
     setEssay(text);
     const words = text
@@ -135,55 +162,63 @@ const ExamPage = () => {
     handleWordCount(words.length);
   };
 
- 
+  const checkConstraints = () => {
+    console.log("Constraints Object:", constraints);
 
-const checkConstraints = () => {
-  console.log("Constraints Object:", constraints);
+    const minWords = constraints.minWords ?? 1;
+    const maxWords = constraints.maxWords ?? Infinity;
+    const minChars = constraints.minChars ?? 1;
+    const maxChars = constraints.maxChars ?? Infinity;
+    const minTimeInSeconds = (constraints.minTime ?? 0) * 60;
+    const maxTimeInSeconds = (constraints.maxTime ?? Infinity) * 60;
 
-  const minWords = constraints.minWords ?? 1;
-  const maxWords = constraints.maxWords ?? Infinity;
-  const minChars = constraints.minChars ?? 1;
-  const maxChars = constraints.maxChars ?? Infinity;
-  const minTimeInSeconds = (constraints.minTime ?? 0) * 60;
-  const maxTimeInSeconds = (constraints.maxTime ?? Infinity) * 60;
+    const wordCountCheck = wordCount >= minWords && wordCount <= maxWords;
+    const characterCountCheck =
+      characterCount >= minChars && characterCount <= maxChars;
+    const minTimeCheck = totalSecondsRef.current <= minTimeInSeconds;
+    const maxTimeCheck = totalSecondsRef.current >= maxTimeInSeconds;
 
-  const wordCountCheck = wordCount >= minWords && wordCount <= maxWords;
-  const characterCountCheck =
-    characterCount >= minChars && characterCount <= maxChars;
-  const minTimeCheck = totalSecondsRef.current <= minTimeInSeconds;
-  const maxTimeCheck = totalSecondsRef.current >= maxTimeInSeconds;
+    const checks = {
+      wordCount: wordCountCheck,
+      characterCount: characterCountCheck,
+      minTime: minTimeCheck,
+      maxTime: maxTimeCheck,
+    };
 
-  const checks = {
-    wordCount: wordCountCheck,
-    characterCount: characterCountCheck,
-    minTime: minTimeCheck,
-    maxTime: maxTimeCheck,
+    console.log(
+      "Word Count:",
+      wordCount,
+      "Required:",
+      minWords,
+      "-",
+      maxWords,
+      "Result:",
+      wordCountCheck
+    );
+    console.log(
+      "Character Count:",
+      characterCount,
+      "Required:",
+      minChars,
+      "-",
+      maxChars,
+      "Result:",
+      characterCountCheck
+    );
+
+    setConstraintChecks(checks);
+    return Object.values(checks).every(Boolean);
   };
 
-  console.log(
-    "Word Count:",
-    wordCount,
-    "Required:",
-    minWords,
-    "-",
-    maxWords,
-    "Result:",
-    wordCountCheck
-  );
-  console.log(
-    "Character Count:",
-    characterCount,
-    "Required:",
-    minChars,
-    "-",
-    maxChars,
-    "Result:",
-    characterCountCheck
-  );
-
-  setConstraintChecks(checks);
-  return Object.values(checks).every(Boolean);
-};
+  useEffect(() => {
+    console.log("Current Constraints:", constraints);
+    console.log("Min Words:", constraints.minWords);
+    console.log("Max Words:", constraints.maxWords);
+    console.log("Min Chars:", constraints.minChars);
+    console.log("Max Chars:", constraints.maxChars);
+    console.log("Min Time:", constraints.minTime);
+    console.log("Max Time:", constraints.maxTime);
+  }, [constraints]);
 
   const renderConstraintStatus = () => {
     return Object.entries(constraintChecks).map(([key, isMet]) => (
@@ -193,29 +228,28 @@ const checkConstraints = () => {
     ));
   };
 
-
   const handleSubmit = async () => {
-  if (!checkConstraints()) {
-    setModalMessage("Please meet all constraints to submit the essay.");
-    setIsModalVisible(true);
-    return;
-  }
+    if (!checkConstraints()) {
+      setModalMessage("Please meet all constraints to submit the essay.");
+      setIsModalVisible(true);
+      return;
+    }
 
-  try {
-    const { data } = await axios.post("http://localhost:5000/api/submit", {
-      essay,
-    });
-    navigate("/result", {
-      state: {
-        gradingResults: data,
-        question: questionText,
-        userAnswer: essay,
-      },
-    });
-  } catch (error) {
-    console.error("Error submitting essay:", error);
-  }
-};
+    try {
+      const { data } = await axios.post("http://localhost:5000/api/submit", {
+        essay,
+      });
+      navigate("/result", {
+        state: {
+          gradingResults: data,
+          question: questionText,
+          userAnswer: essay,
+        },
+      });
+    } catch (error) {
+      console.error("Error submitting essay:", error);
+    }
+  };
   const handleModalStopExam = () => navigate("/");
   const handleModalContinue = () => setIsModalVisible(false);
 

@@ -27,13 +27,13 @@ const Question = ({ questionText, constraints }) => {
         <p>Constraints:</p>
         {/* Render constraints as key-value pairs because its an object */}
         {constraints && typeof constraints === "object" ? (
-          <ul>
+          <div className="constraints">
             {Object.entries(constraints).map(([key, value]) => (
-              <li key={key}>
+              <span key={key} className="constraint-item">
                 {key}: {value}
-              </li>
+              </span>
             ))}
-          </ul>
+          </div>
         ) : (
           <p>{constraints}</p> // but if its not an object this will be rendered
         )}
