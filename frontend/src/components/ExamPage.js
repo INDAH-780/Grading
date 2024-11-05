@@ -325,8 +325,12 @@ const ExamPage = () => {
         </div>
         <div className="d-flex justify-content-between w-100 align-items-center mt-3">
           <div>
-            <p>Word Count: {wordCount}</p>
-            <p>Character Count: {characterCount}</p>
+            <p>
+              Word Count: {wordCount} / {constraints.maxWords ?? "∞"}
+            </p>
+            <p>
+              Character Count: {characterCount} / {constraints.maxChars ?? "∞"}
+            </p>
           </div>
           <button className="btn btn-primary" onClick={handleSubmit}>
             Submit Essay
