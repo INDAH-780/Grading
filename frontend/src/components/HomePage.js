@@ -134,7 +134,14 @@ const HomePage = () => {
               <div className="modal-body">
                 <p>Would you like to sign in with Google to proceed?</p>
               </div>
-              <div className="modal-footer">
+              <div
+                className="modal-footer"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  width: "100%",
+                }}
+              >
                 <button
                   className="btn btn-secondary"
                   onClick={handleAuthCancel}
@@ -173,7 +180,14 @@ const HomePage = () => {
                   automatically.
                 </p>
               </div>
-              <div className="modal-footer">
+              <div
+                className="modal-footer"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  width: "100%",
+                }}
+              >
                 <button className="btn btn-secondary" onClick={handleCancel}>
                   Cancel
                 </button>

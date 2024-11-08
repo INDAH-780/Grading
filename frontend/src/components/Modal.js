@@ -11,7 +11,6 @@ const Modal = ({
   return (
     <div className="modal" style={{ display: "block" }}>
       {" "}
-      {/* Use Bootstrap modal class */}
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header">
@@ -21,11 +20,18 @@ const Modal = ({
             <p>{message}</p>
             {children}
           </div>
-          <div className="modal-footer">
+          <div
+            className="modal-footer"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              width: "100%",
+            }}
+          >
             <button className="btn btn-secondary" onClick={onContinue}>
               {continueText || "Continue"}
             </button>
-            <button className="btn btn-danger" onClick={onStopExam}>
+            <button className="btn btn-primary" onClick={onStopExam}>
               {stopText || "Stop Exam"}
             </button>
           </div>

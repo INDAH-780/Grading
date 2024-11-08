@@ -5,6 +5,7 @@ import EssayForm from "./EssayForm";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Modal from "./Modal";
+import ProctoringLibrary from 'proctoring-features';
 
 const ExamPage = () => {
  const [timerHours, setTimerHours] = useState(0);
@@ -105,38 +106,7 @@ const ExamPage = () => {
       );
     }, 1000);
 
-    // intervalRef.current = setInterval(() => {
-    //   totalSecondsRef.current -= 1;
-    //   const hours = Math.floor(totalSecondsRef.current / 3600);
-    //   const minutes = Math.floor((totalSecondsRef.current % 3600) / 60);
-    //   const seconds = totalSecondsRef.current % 60;
-
-    //   setTimerHours(hours);
-    //   setTimerMinutes(minutes);
-    //   setTimerSeconds(seconds);
-
-    //   const percentageRemaining = (totalSecondsRef.current / 1800) * 100;
-    //   setBorderColor(
-    //     percentageRemaining <= 10
-    //       ? "red"
-    //       : percentageRemaining <= 50
-    //       ? "orange"
-    //       : "silver"
-    //   );
-    //   setBoxShadowColor(
-    //     percentageRemaining <= 10
-    //       ? "red"
-    //       : percentageRemaining <= 50
-    //       ? "orange"
-    //       : "silver"
-    //   );
-
-    //   if (totalSecondsRef.current <= 0) {
-    //     clearInterval(intervalRef.current);
-    //     handleSubmit();
-    //   }
-    // }, 1000);
-
+   
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) {
         navigate("/");
@@ -213,8 +183,6 @@ const ExamPage = () => {
   };
 
   const checkConstraints = () => {
-    console.log("Constraints Object:", constraints);
-
     const minWords = constraints.minWords ?? 1;
     const maxWords = constraints.maxWords ?? Infinity;
     const minChars = constraints.minChars ?? 1;
@@ -225,40 +193,54 @@ const ExamPage = () => {
     const wordCountCheck = wordCount >= minWords && wordCount <= maxWords;
     const characterCountCheck =
       characterCount >= minChars && characterCount <= maxChars;
-    const minTimeCheck = totalSecondsRef.current <= minTimeInSeconds;
-    const maxTimeCheck = totalSecondsRef.current >= maxTimeInSeconds;
+
+    const isMinTimeMet = totalSecondsRef.current >= minTimeInSeconds;
+    const isMaxTimeMet = totalSecondsRef.current <= maxTimeInSeconds;
 
     const checks = {
       wordCount: wordCountCheck,
       characterCount: characterCountCheck,
-      minTime: minTimeCheck,
-      maxTime: maxTimeCheck,
+      sittingTime: {
+        isMinTimeMet,
+        isMaxTimeMet,
+      },
     };
-
-    console.log(
-      "Word Count:",
-      wordCount,
-      "Required:",
-      minWords,
-      "-",
-      maxWords,
-      "Result:",
-      wordCountCheck
-    );
-    console.log(
-      "Character Count:",
-      characterCount,
-      "Required:",
-      minChars,
-      "-",
-      maxChars,
-      "Result:",
-      characterCountCheck
-    );
 
     setConstraintChecks(checks);
     return Object.values(checks).every(Boolean);
   };
+
+  //proctoring features
+
+useEffect(() => {
+  // Set up event listeners for proctoring-related events
+  ProctoringLibrary.handleFullscreenChange(() => {
+    setModalMessage("Exiting fullscreen is not allowed during the exam.");
+    setIsModalVisible(true);
+  });
+
+  ProctoringLibrary. detectWindowSwitching(() => {
+    setModalMessage("Tab switching is not permitted during the exam.");
+    setIsModalVisible(true);
+  });
+
+  ProctoringLibrary.initLogging((key) => {
+    // Optionally log keystrokes or handle specific key events
+    console.log(`Key pressed: ${key}`);
+  });
+
+  // Enforce fullscreen mode at the beginning of the exam
+  ProctoringLibrary.enforceFullscreen();
+
+  ProctoringLibrary.startScreenshotCapture();
+
+  // Cleanup on component unmount
+  return () => {
+    ProctoringLibrary.endSession(); // Assuming this is a valid method
+  };
+}, []);
+
+
 
   useEffect(() => {
     console.log("Current Constraints:", constraints);
@@ -270,13 +252,39 @@ const ExamPage = () => {
     console.log("Max Time:", constraints.maxTime);
   }, [constraints]);
 
-  const renderConstraintStatus = () => {
-    return Object.entries(constraintChecks).map(([key, isMet]) => (
-      <li key={key}>{`${key.replace(/([A-Z])/g, " $1")}: ${
-        isMet ? "✓" : "✗"
-      }`}</li>
-    ));
-  };
+
+const renderConstraintStatus = () => {
+  const messages = [];
+
+  // Check word count
+  if (!constraintChecks.wordCount) {
+    messages.push("You didn't meet the specified word count.");
+  }
+
+  // Check character count
+  if (!constraintChecks.characterCount) {
+    messages.push("You didn't meet the specified character count.");
+  }
+
+  // Check sitting time
+  const { minTime, maxTime } = constraintChecks;
+
+  if (!minTime) {
+    messages.push("You didn't meet the minimum sitting time requirement.");
+  } else if (!maxTime) {
+    messages.push(
+      "You exceeded the maximum sitting time. Your exam will be submitted in 2 seconds."
+    );
+  } else {
+    messages.push("Your sitting time is within the required range.");
+  }
+
+  // Render messages as list items
+  return messages.map((message, index) => <li key={index}>{message}</li>);
+};
+
+
+
 
   const handleSubmit = async () => {
     if (!checkConstraints()) {
@@ -285,6 +293,38 @@ const ExamPage = () => {
       return;
     }
 
+    // If exceeding the maximum sitting time, show a modal message
+    if (!constraintChecks.sittingTime.isMaxTimeMet) {
+      setModalMessage(
+        "You exceeded the maximum sitting time. Your exam will be submitted in 2 seconds."
+      );
+      setIsModalVisible(true);
+
+      // Delay the submission by 2 seconds
+      setTimeout(async () => {
+        try {
+          const { data } = await axios.post(
+            "http://localhost:5000/api/submit",
+            {
+              essay,
+            }
+          );
+          navigate("/result", {
+            state: {
+              gradingResults: data,
+              question: questionText,
+              userAnswer: essay,
+            },
+          });
+        } catch (error) {
+          console.error("Error submitting essay:", error);
+        }
+      }, 2000);
+
+      return; // Prevent the regular submission from occurring immediately
+    }
+
+    // Regular submission if constraints are met
     try {
       const { data } = await axios.post("http://localhost:5000/api/submit", {
         essay,
@@ -300,6 +340,7 @@ const ExamPage = () => {
       console.error("Error submitting essay:", error);
     }
   };
+
   const handleModalStopExam = () => navigate("/");
   const handleModalContinue = () => setIsModalVisible(false);
 
