@@ -17,7 +17,7 @@ const ExamPage = () => {
  const [essay, setEssay] = useState("");
  const [questionText, setQuestionText] = useState("");
  const [constraints, setConstraints] = useState({});
- const [maxTimeInSeconds, setMaxTimeInSeconds] = useState(0); // New state for maxTime
+ const [maxTimeInSeconds, setMaxTimeInSeconds] = useState(0);
  const [isModalVisible, setIsModalVisible] = useState(false);
  const [modalMessage, setModalMessage] = useState("");
  const [constraintChecks, setConstraintChecks] = useState({});
@@ -35,10 +35,10 @@ const ExamPage = () => {
         const response = await axios.get("http://localhost:5000/question");
         console.log("Fetched Response:", response.data); // Log the full response
         setQuestionText(response.data.questionText);
-          const parsedConstraints = parseConstraints(response.data.constraints);
-          setConstraints(parsedConstraints);
+        const parsedConstraints = parseConstraints(response.data.constraints);
+        setConstraints(parsedConstraints);
 
-          // Set timer based on maxTime in constraints
+        // Set timer based on maxTime in constraints
         const maxTimeInSec = (parsedConstraints.maxTime || 60) * 60;
         setMaxTimeInSeconds(maxTimeInSec); // Set max time in state
         totalSecondsRef.current = maxTimeInSec;
@@ -51,6 +51,9 @@ const ExamPage = () => {
         setTimerMinutes(minutes);
         setTimerSeconds(seconds);
 
+        // Initialize proctoring timer notification with the total exam duration
+        ProctoringLibrary.totalExamDuration = parsedConstraints.maxTime || 60; // in minutes
+        ProctoringLibrary.startTimerNotification();
 
         console.log("Fetched Constraints:", response.data.constraints);
       } catch (error) {
@@ -59,22 +62,12 @@ const ExamPage = () => {
     };
     fetchQuestion();
 
-    // Request fullscreen on page load
-    if (examRef.current.requestFullscreen) {
-      examRef.current.requestFullscreen();
-    } else if (examRef.current.webkitRequestFullscreen) {
-      examRef.current.webkitRequestFullscreen(); // Safari support
-    } else if (examRef.current.mozRequestFullScreen) {
-      examRef.current.mozRequestFullScreen(); // Firefox support
-    } else if (examRef.current.msRequestFullscreen) {
-      examRef.current.msRequestFullscreen(); // IE/Edge support
-    }
 
     // Initialize the timer interval
     intervalRef.current = setInterval(() => {
       if (totalSecondsRef.current <= 0) {
         clearInterval(intervalRef.current);
-        handleSubmit(); // Auto-submit if time runs out
+        handleSubmit(); 
         return;
       }
 
@@ -106,32 +99,32 @@ const ExamPage = () => {
       );
     }, 1000);
 
-   
-    const handleFullscreenChange = () => {
-      if (!document.fullscreenElement) {
+
+    // Proctoring features from the library
+    ProctoringLibrary.enforceFullscreen();
+    ProctoringLibrary.startScreenshotCapture();
+    ProctoringLibrary.detectWindowSwitching(() => {
+      setModalMessage("Tab switching is not permitted during the exam.");
+      setIsModalVisible(true);
+    });
+    ProctoringLibrary.initLogging((key) => {
+      console.log(`Key pressed: ${key}`);
+    });
+     ProctoringLibrary.handleFullscreenChange(() => {
+        if (!document.fullscreenElement) {
         navigate("/");
       }
-    };
-
-    const handleKeyDown = (event) => {
-      if (event.altKey) {
-        setModalMessage(
-          "You cannot switch tabs during the exam. Please stay on this tab."
-        );
-        setIsModalVisible(true);
-        event.preventDefault();
       }
-    };
+     );
 
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    window.addEventListener("keydown", handleKeyDown);
-
+    // Cleanup on component unmount
     return () => {
       clearInterval(intervalRef.current);
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-      window.removeEventListener("keydown", handleKeyDown);
+      ProctoringLibrary.endSession();
     };
   }, []);
+
+   
 
   const handleStopExam = () => {
     setModalMessage(
@@ -209,37 +202,6 @@ const ExamPage = () => {
     setConstraintChecks(checks);
     return Object.values(checks).every(Boolean);
   };
-
-  //proctoring features
-
-useEffect(() => {
-  // Set up event listeners for proctoring-related events
-  ProctoringLibrary.handleFullscreenChange(() => {
-    setModalMessage("Exiting fullscreen is not allowed during the exam.");
-    setIsModalVisible(true);
-  });
-
-  ProctoringLibrary. detectWindowSwitching(() => {
-    setModalMessage("Tab switching is not permitted during the exam.");
-    setIsModalVisible(true);
-  });
-
-  ProctoringLibrary.initLogging((key) => {
-    // Optionally log keystrokes or handle specific key events
-    console.log(`Key pressed: ${key}`);
-  });
-
-  // Enforce fullscreen mode at the beginning of the exam
-  ProctoringLibrary.enforceFullscreen();
-
-  ProctoringLibrary.startScreenshotCapture();
-
-  // Cleanup on component unmount
-  return () => {
-    ProctoringLibrary.endSession(); // Assuming this is a valid method
-  };
-}, []);
-
 
 
   useEffect(() => {
@@ -321,7 +283,7 @@ const renderConstraintStatus = () => {
         }
       }, 2000);
 
-      return; // Prevent the regular submission from occurring immediately
+      return; // Prevents the regular submission from occurring immediately
     }
 
     // Regular submission if constraints are met
