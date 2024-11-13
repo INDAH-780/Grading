@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
-
 const Question = ({ questionText, constraints }) => {
   const [question, setQuestion] = useState("");
-
   useEffect(() => {
     const fetchRandomQuestion = async () => {
       try {
@@ -16,10 +14,8 @@ const Question = ({ questionText, constraints }) => {
         console.error("Error fetching question:", error);
       }
     };
-
     fetchRandomQuestion();
   }, []);
-
   return (
     <div className="question-field">
       <div>
@@ -40,5 +36,4 @@ const Question = ({ questionText, constraints }) => {
     </div>
   );
 };
-
 export default Question;

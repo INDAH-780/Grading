@@ -3,17 +3,12 @@ const axios = require("axios");
 const cors = require("cors");
 const fs = require("fs").promises;
 const path = require("path");
-
 const app = express();
 const port = 5000;
 const router = express.Router();
-
 app.use(cors());
 app.use(express.json());
-
 const GRADIO_URL = "https://3a1fe7fd4b2d2c1d3a.gradio.live";
-
-
 const loadQuestions = async () => {
   try {
     const data = await fs.readFile(

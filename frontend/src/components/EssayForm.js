@@ -1,15 +1,12 @@
 import React, { useState } from "react";
-
 const EssayForm = ({ onEssayChange }) => {
   const [essay, setEssay] = useState("");
-
   // Handle changes in the textarea
   const handleChange = (event) => {
     const text = event.target.value;
     setEssay(text);
     onEssayChange(text);
   };
-
   return (
     <div className="essay-form mb-4">
       <p>Your response here</p>

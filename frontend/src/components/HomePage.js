@@ -8,27 +8,30 @@ import logoImage from "../images/logoh.png"
 
 
 const HomePage = () => {
+  //innitialising all useStates to be used
   const [showModal, setShowModal] = useState(false);
   const [authModal, setAuthModal] = useState(false);
   const navigate = useNavigate();
 
+  //Defining functions
+
+  //Function for the start exam button
   const handleStartExam = async (e) => {
     e.preventDefault();
     const user = auth.currentUser;
-
     if (!user) {
-      setAuthModal(true); // Show authentication modal if not signed in
+      setAuthModal(true);
     } else {
-      setShowModal(true); // Show exam modal if signed in
+      setShowModal(true); 
     }
   };
 
+  //Authenticate function
   const handleAuthenticate = async () => {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({
-      prompt: "select_account", // Forces the account selection dialog
+      prompt: "select_account", 
     });
-
     try {
       const result = await signInWithPopup(auth, provider);
       console.log("User signed in: ", result.user);
@@ -38,18 +41,20 @@ const HomePage = () => {
       console.error("Error during authentication: ", error);
     }
   };
-
+//In case the user doesn't want to be authenticated
   const handleAuthCancel = () => {
-    setAuthModal(false); // Close the authentication modal without signing in
+    setAuthModal(false); 
   };
 
+  //continue modal to next page
   const handleContinue = (e) => {
     e.preventDefault(); 
     navigate("/exam"); 
   };
 
+  //if user decides not to take the exam
   const handleCancel = () => {
-    setShowModal(false); // Close the exam modal
+    setShowModal(false);
   };
 
   return (
@@ -118,7 +123,7 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Authentication Modal */}
+      {/* Authentication Modal design */}
       {authModal && (
         <div
           className={`modal fade show`}
@@ -159,7 +164,7 @@ const HomePage = () => {
           </div>
         </div>
       )}
-
+{/* exams instructions modal */}
       {showModal && (
         <div
           className={`modal fade show`}

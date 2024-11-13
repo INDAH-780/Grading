@@ -1,8 +1,7 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { signOut } from "firebase/auth"; // Import signOut from firebase/auth
-import { auth } from "../firebase/Firebase"; // Import your Firebase auth instance
-
+import { signOut } from "firebase/auth"; 
+import { auth } from "../firebase/Firebase";
 const Result = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -11,7 +10,6 @@ const Result = () => {
     question: "No question available",
     userAnswer: "No answer available",
   };
-
   console.log("Received Grading Results:", gradingResults);
 
   // Attempt to parse gradingResults if it's a string
@@ -33,18 +31,14 @@ const Result = () => {
       </div>
     );
   }
-
-  // Access the first result in the gradingData array
   const firstResult = gradingData[0];
-
   const handleBackToHome = () => {
     navigate("/");
   };
-
   const handleSignOut = async () => {
     try {
-      await signOut(auth); // Sign out the user from Firebase
-      navigate("/"); // Navigate back to the homepage
+      await signOut(auth);
+      navigate("/"); 
     } catch (error) {
       console.error("Error signing out: ", error);
     }

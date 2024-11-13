@@ -3,70 +3,12 @@
   padding: 0;
   font-family: 'Poppins', sans-serif;
 }
-
-
 .custom-style {
   font-family: 'Poppins', sans-serif;
 }
+//===================================================================================
+//styling for all modals
 
-
-
-
-
-h2 {
-   margin-top: 5px;
-  font-size: 1.8rem;
-  color: #333;
-}
-
-img {
-  max-height: 400px; 
-  object-fit: cover; 
-  width: 100%; 
-}
-
-
-
-h1 {
-  margin-top: 50px;
-  font-size: 1.8rem;
-  color: #333;
-}
-
-p {
-  color: #666;
-  font-size: 1rem;
-  margin: 1rem 0;
-}
-
-.btn-primary{
-  background-color:#242034;
-  color: #fff 
-}
-
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  width: 100%;
-  padding: 1rem;
-  background-color: #7963a8; 
-}
-
-.container {
-  margin-top: 50px;
-    left: 0;
-  right: 0; 
-  margin-bottom: 2rem;
-  padding: 120px;
-  padding-left: 100px;
-    width: 100vw;
-}
-.wrapper{
-width: 100vw;
-}
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -79,22 +21,12 @@ width: 100vw;
   z-index: 1000;
 }
 
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-  max-width: 400px;
-}
 
 .modal-buttons {
   display: flex;
   justify-content: space-around;
   margin-top: 15px;
 }
-
-
-
 
 .modal-content {
   background-color: #fff;
@@ -111,14 +43,16 @@ width: 100vw;
   color: #333;
   font-size: 1.5rem;
 }
-
 .modal p {
   color: #666;
   font-size: 1rem;
   margin: 1rem 0;
 }
-
-
+/* .modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+} */
 .modal-actions {
   display: flex;
   gap: 1rem;
@@ -152,7 +86,67 @@ width: 100vw;
 .modal-actions .cancel-btn:hover {
   background-color: #c7c7c7;
 }
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; 
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+//===================================================//
+//====custom styling==/
 
+h1, h2, h3 {
+  text-align: center; 
+}
+h1 {
+  margin-top: 50px;
+  font-size: 1.8rem;
+  color: #333;
+}
+h2 {
+   margin-top: 5px;
+  font-size: 1.8rem;
+  color: #333;
+}
+img {
+  max-height: 400px; 
+  object-fit: cover; 
+  width: 100%; 
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+p {
+  color: #666;
+  font-size: 1rem;
+  margin: 1rem 0;
+}
+//buttons
+.btn-primary{
+  background-color:#242034;
+  color: #fff 
+}
 button {
   margin-top: 1.5rem;
   font-size: 1.1rem;
@@ -162,27 +156,49 @@ button {
   backdrop-color: #242034;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
-
 button:enabled {
   background-color: #007bff;
   cursor: pointer;
 }
-
 button:enabled:hover {
   background-color: #0056b3;
   transform: scale(1.05);
 }
-
 button:disabled {
   background-color: grey;
   cursor: not-allowed;
 }
-
 button:focus {
   outline: none;
   box-shadow: 0px 0px 8px rgba(0, 123, 255, 0.6);
 }
-
+//======homepage=====///
+//===================//
+//=======//
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  width: 100%;
+  padding: 1rem;
+  background-color: #7963a8; 
+}
+.container {
+  margin-top: 50px;
+    left: 0;
+  right: 0; 
+  margin-bottom: 2rem;
+  padding: 120px;
+  padding-left: 100px;
+    width: 100vw;
+}
+.wrapper{
+width: 100vw;
+}
+//============Timer===============//
+//==============================//
 .timer-container {
   display: flex;
   margin-top: -20px;
@@ -191,7 +207,6 @@ button:focus {
   position: fixed;
   z-index: 10; 
 }
-
 .clock {
   position: fixed;
  margin-left: 20px;
@@ -205,11 +220,9 @@ button:focus {
   color: White; 
   border-radius: 7px;
   border: 2px solid white; 
- 
   transition: border-color 0.5s ease;
   z-index: 10;
 }
-
 @keyframes pulse {
   0% {
     border-color:white;
@@ -221,11 +234,9 @@ button:focus {
     border-color: #FFB800; 
   }
 }
-
 .clock.pulse {
   animation: pulse 2s ease-in-out infinite; 
 }
-
 .clock section {
   display: flex;
   flex-direction: column;
@@ -233,53 +244,22 @@ button:focus {
   align-items: center;
   padding: 1rem;
     margin-top: 7px;
-
 }
-
 .clock section p {
   font-size: 1.2rem;
   color: white;
   margin-top: 5px;
 }
-
 .clock section small {
   color: white;
   text-shadow: none;
 }
-
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000; 
-}
-
-.modal-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 300px; 
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-
+//===================question component ========///
+////==================////
 .question-component {
   margin-top: 0;
   top: 0;
 }
-
 .question-field {
   width: 100%;
   height: 150px;
@@ -292,11 +272,9 @@ button:focus {
   text-align: left;
   color: linear-gradient(270deg, #051817, #0e3839);
 }
-
 .question {
   width: 100%;
   background-color: #ffffff;
-  
   border: 2px solid #ccc;
   line-height: 1;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -304,8 +282,6 @@ button:focus {
   font-size: 18px;
   color: linear-gradient(270deg, #051817, #0e3839);
 }
-
-
 .constraints {
   display: flex;
   flex-wrap: wrap;
@@ -313,7 +289,6 @@ button:focus {
   margin-bottom: 5px;
   color: black;
 }
-
 .constraint-item {
   white-space: nowrap;
   font-size: 0.9rem; 
@@ -322,8 +297,8 @@ button:focus {
   border-radius: 5px; 
     margin-bottom: 5px;
 }
-
-
+//====================essay form=================///
+//==============================///
 .essay-form {
   margin-top: 2px; 
     width: 100%; 
@@ -340,8 +315,8 @@ button:focus {
   margin-top: 10px;
   width: 90%;
   margin: 10px auto; 
+   font-size: 14px; 
 }
-
 .info-item {
   font-size: 16px;
   color: #333;
@@ -353,26 +328,17 @@ button:focus {
   height: 350px; 
   width: 80%; 
 }
-
-.info-container {
-  font-size: 14px; 
-}
-
-
 .essay:focus {
-
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); 
   outline: none; 
 }
-
 .error {
   color: red; 
   font-size: 14px; 
   margin-top: 5px; 
 }
-
-
-
+///============================results========================///
+//===========================================//
 .result-container {
   width: 900px;
   margin: 0 auto;
@@ -382,38 +348,9 @@ button:focus {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   font-family: Arial, sans-serif;
 }
-
-h1 {
-  font-size: 2rem;
-  color: #333;
-  margin-bottom: 1rem;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-}
-
 .question-section {
   margin-top: 1.5rem;
 }
-
-h2 {
-  font-size: 1.25rem;
-  color: #444;
-  margin-top: 1rem;
-}
-
-p {
-  font-size: 1rem;
-  color: #666;
-}
-
 .back-button {
   display: block;
   width: 20%;
@@ -427,45 +364,9 @@ p {
   cursor: pointer;
   transition: background-color 0.3s;
 }
-
 .back-button:hover {
   background-color: #0056b3;
 }
-
-.exam-page {
-  border: 2px solid; 
-  border-radius: 10px; 
-}
-
-h1, h2, h3 {
-  text-align: center; 
-}
-
-
-.sidebar-notification {
-  position: fixed;
-  top: 20%;
-  right: -250px; 
-  width: 250px;
-  padding: 15px;
-  background-color: lightcoral;
-  color: white;
-  transition: left 0.5s ease; 
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-  z-index: 100;
-  border-radius: 20px;
-}
-
-.sidebar-notification.visible {
-  right: 0;
-}
-
-
-
-
-
-
-
 //=============sign out button=====//
 .sign-out-button {
   background-color: #f44336; 
@@ -478,26 +379,21 @@ h1, h2, h3 {
   transition: background-color 0.3s; 
   margin-top: 20px; 
 }
-
 .sign-out-button:hover {
   background-color: #c62828; 
 }
-
 .sign-out-button:focus {
   outline: none; 
 }
-
 .sign-out-button:active {
   transform: scale(0.98); 
 }
-
 .button-container {
   display: flex; 
   justify-content: space-between;
   align-items: center; 
   margin-top: 20px; 
 }
-
 .back-button {
   background-color: #2196F3; 
   color: white; 
@@ -508,19 +404,15 @@ h1, h2, h3 {
   font-size: 16px; 
   transition: background-color 0.3s; 
 }
-
 .back-button:hover {
   background-color: #1976D2; 
 }
-
 .back-button:focus {
   outline: none; 
 }
-
 .back-button:active {
   transform: scale(0.98);
 }
-
 input, textarea {
   border: 3px solid #c7c7c7; 
   border-radius: 5px; 
@@ -533,41 +425,16 @@ background-color:  #c7c7c7;
   height: 150px; 
   
 }
-
-.result-container {
-  background-color: #ffffff; 
-  border-radius: 8px; 
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+//=========================styling for exam  page======//
+//==========================//
+.exam-page {
+  border: 2px solid; 
+  border-radius: 10px; 
 }
-
-/* Ensure responsiveness and proper styling */
-.sidebar-notification {
-  width: 250px;
-  padding: 15px; 
-  background-color: #f44336;
-  color: white; 
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5); 
-  z-index: 100; 
-}
-.sidebar-notification.visible {
-  right: 0; 
-}
-
-.sidebar-notification.hidden {
-  right: -250px; 
-}
-
-
 .exam-page button {
   margin-top: 10px;
 }
-
-
-
-
-
-//push notification
+//push notification=======================================
 .push-notification {
   position: fixed;
   top: 20%;
@@ -582,13 +449,10 @@ background-color:  #c7c7c7;
   z-index: 1000;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
 }
-
 .push-notification.visible {
   right: 10px; 
 }
-
-
-//navbar
+//navbar===================================================
 .nav {
   background-color: red; 
   padding: 10px 20px; 
@@ -601,36 +465,15 @@ background-color:  #c7c7c7;
   padding: 1rem;
   background-color: #7963a8; 
 }
-
 .navbar-title {
   margin: 0; 
 }
-
 .d-flex {
   display: flex; 
 }
-
 .justify-content-between {
   justify-content: space-between; 
 }
-
 .align-items-center {
   align-items: center; 
-}
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
 }
